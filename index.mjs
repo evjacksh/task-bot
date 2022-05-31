@@ -6,7 +6,6 @@ const token = '5313280359:AAGlHJST4liN8RI2si_yEPFaCl8pTm8tmx0'
 const bot = new TelegramApi(token, {polling: true})
 
 
-
 const data = []
 export default data
 
@@ -35,9 +34,9 @@ const onBugs = async (chatId) => {
 
 Если вы все сделали верно, бот пришлет сообщение с соотвествующим контекстом.
             `)
-    return bot.on('message', async msg => {
-        const {id,first_name,username} = msg.from
-        const photo = msg?.photo
+
+    return bot.once('message', async msg => {
+        const {first_name,username} = msg.from
         let {text,date} = msg
 
         const form = new FormData()
@@ -47,12 +46,9 @@ const onBugs = async (chatId) => {
         form.append('first_name', first_name)
         form.append('date', date)
 
-        POST_FETCH_REQUEST(form)
-
-
+        await POST_FETCH_REQUEST(form)
         return bot.sendMessage(chatId, `Спасибо за проявленную инициативность! В ближайшее время ошибка будет исправлена :)`)
-    })
-            
+    })   
 }
 
 const onUpgrade = async (chatId) => {
@@ -62,10 +58,9 @@ const onUpgrade = async (chatId) => {
 
 Если вы все сделали верно, бот пришлет сообщение с соотвествующим контекстом.
             `)
-    return bot.on('message', async msg => {
-        const {first_name} = msg.from.first_name
-        const username = msg.from.username
-        const photo = msg?.photo
+
+   return bot.once('message', async msg => {
+        const {first_name,username} = msg.from
         let {text,date} = msg
 
         const form = new FormData()
@@ -75,13 +70,9 @@ const onUpgrade = async (chatId) => {
         form.append('first_name', first_name)
         form.append('date', date)
 
-        POST_FETCH_REQUEST(form)
-
-        console.log(msg);
-        return bot.sendMessage(chatId, `Спасибо за проявленную инициативность! В ближайшее время ошибка будет исправлена :)`)
-        
-    })
-            
+        await POST_FETCH_REQUEST(form)
+        return bot.sendMessage(chatId, `Спасибо за проявленную инициативность! В ближайшее время мы рассмотрим ваше предложение :)`)
+    })   
 }
 
 const start = () => {
@@ -95,7 +86,6 @@ const start = () => {
     bot.on('message', async msg => {
         const chatId = msg.chat.id
         const {text} = msg
-        const options = {day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: 'numeric'  };
         console.log(msg)
         if(text === '/start'){
             return bot.sendMessage(chatId, `В этого бота можно отправлять замеченные вами недоработки или предложения по улучшению функционала той платформы, с которой вы работаете
@@ -107,7 +97,7 @@ const start = () => {
         }
 
         if(text === '/bugs'){
-         return onBugs(chatId)
+            return onBugs(chatId)
         }
 
         if(text === '/upgrade'){

@@ -9,28 +9,36 @@ const bot = new TelegramApi(token, {polling: true})
 
 
 // Server
-const requestListener = (req,res) => {
-    console.log(req,res)
-    res.writeHead(200)
-    res.end('')
-}
+    const requestListener = (req,res) => {
+        let data = ''
+        req.on('data', chunk => {
+            data += chunk
 
+        })
+        // const {chat_id, username, meet_username, message} = req.body
+        req.on('end', () => {
+            console.log(data);
+            res.writeHead(200)
+            res.end('Connection OK')
+        })
+ 
+    }
+    const server = http.createServer(requestListener)
+    server.listen(8080)
 
 
 
 
 
 // RegularExp
+    // Stat RegularExp
+        const statRegularExp = /=((([А-Я]{1,10}[1,9]{1,3})((\*)[0-9]{1,10}){4})|(([А-Я]{1,10})(\*)[0-9]{1,10}))$/
 
-// Stat RegularExp
-const statRegularExp = /=((([А-Я]{1,10}[1,9]{1,3})((\*)[0-9]{1,10}){4})|(([А-Я]{1,10})(\*)[0-9]{1,10}))$/
-
-
-// Meet RegularExp
-const meetRegularExp = /(@(([A-Z]|[a-z])+) (([0-9]{1,2}\.){2})([0-9]{4}) ([0-9]{1,2}:[0-9]{1,2}$))/
-const meetUsernameRegularExp = /(@(([A-Z]|[a-z])+))/
-const meetDateRegularExp = /(([0-9]{1,2}\.){2})([0-9]{4})/
-const meetTimeRegularExp = /([0-9]{1,2}:[0-9]{1,2})$/
+    // Meet RegularExp
+        const meetRegularExp = /(@(([A-Z]|[a-z])+) (([0-9]{1,2}\.){2})([0-9]{4}) ([0-9]{1,2}:[0-9]{1,2}$))/
+        const meetUsernameRegularExp = /(@(([A-Z]|[a-z])+))/
+        const meetDateRegularExp = /(([0-9]{1,2}\.){2})([0-9]{4})/
+        const meetTimeRegularExp = /([0-9]{1,2}:[0-9]{1,2})$/
 
 
 const POST_FETCH_REQUEST = async (form) => {
@@ -62,7 +70,7 @@ const onBugs = async (chatId) => {
 
     return bot.once('message', async msg => {
         const {first_name,username} = msg.from
-        let {text,date} = msg
+        let {text} = msg
 
         const form = new FormData()
         form.append('command_type', 'bug')
@@ -86,7 +94,7 @@ const onUpgrade = async (chatId) => {
 
    return bot.once('message', async msg => {
         const {first_name,username} = msg.from
-        let {text,date} = msg
+        let {text} = msg
 
         const form = new FormData()
         form.append('command_type', 'upg')
@@ -111,7 +119,7 @@ const onStat = async (chatId) => {
 
     return bot.once('message', async msg => {
         const {first_name,username} = msg.from
-        let {text,date} = msg
+        let {text} = msg
 
         if(formatCheck(text,statRegularExp) !== null){
             const form = new FormData()
@@ -131,14 +139,15 @@ const onStat = async (chatId) => {
 }
 
 const onMeet = async (chatId) => {
-    await bot.sendMessage(chatId, `Чтобы назначить встречу,укажите username сотрудника и дату в следующем формате:
+    const meetMessage = `Чтобы назначить встречу,укажите username сотрудника и дату в следующем формате:
     
-@username 02.06.2022 15:30
-    `)
+    @username 02.06.2022 15:30
+        `
+    await bot.sendMessage(chatId, meetMessage)
 
     bot.once('message', async msg => {
         const {first_name,username} = msg.from
-        let {text,date} = msg
+        let {text} = msg
         const meet_username = formatCheck(text,meetUsernameRegularExp)
         const meetTime = formatCheck(text,meetTimeRegularExp)
         const meetDate = formatCheck(text,meetDateRegularExp)
@@ -173,29 +182,52 @@ const start = () => {
         {command: '/meet', description: 'Назначить встречу'},
     ])
 
+    const options = {
+        reply_markup: JSON.stringify({
+            inline_keyboard: [
+                [{text: 'Сообщить о баге', callback_data: '/bug'}],
+                [{text: 'Сделать предложение', callback_data: '/upg'}],
+                [{text: 'Отправить отчет', callback_data: '/stat'}],
+                [{text: 'Назначить встречу', callback_data: '/meet'}],
+            ]
+        })
+    }
+
     bot.on('message', async msg => {
         const chatId = msg.chat.id
+        const {username} = msg.chat
         const {text} = msg
 
 
         console.log(msg)
         if(text === '/start'){
+
+            const startMessage = `В этого бота можно отправлять замеченные вами недоработки, предложения по улучшению функционала той платформы, с которой вы работаете, отправлять отчеты по эффективности рекламе, назначать встречи.
+            
+            Чтобы это сделать, вам для начала нужно выбрать нужный пункт в меню или нажать на кнопку с соотвествующим названием и отправить информацию в соотвествии с инструкцией в сообщении,появившемся после нажатия на кнопку.
+            
+            Либо же ввести одну из команд: 
+            /bug - в случае,если вы нашли недоработку. 
+            /upg - в случае,если вы хотите что-нибудь предложить.
+            /stat - в случае,если вы хотите отправить отчет по рекламе.
+            /meet - в случае,если вы хотите назначить встречу.
+                        `
             const form = new FormData()
             form.append('command_type', 'start')
             form.append('chat_id', chatId)
             form.append('username', username)
     
-            await POST_FETCH_REQUEST(form)
-            return bot.sendMessage(chatId, `В этого бота можно отправлять замеченные вами недоработки, предложения по улучшению функционала той платформы, с которой вы работаете, отправлять отчеты по эффективности рекламе, назначать встречи.
-            
-Чтобы это сделать, вам для начала нужно выбрать нужный пункт в меню или нажать на кнопку с соотвествующим названием и отправить информацию в соотвествии с инструкцией в сообщении,появившемся после нажатия на кнопку.
+            // await POST_FETCH_REQUEST(form)
+            await bot.sendMessage(chatId, startMessage ,options)
 
-Либо же ввести одну из команд: 
-/bug - в случае,если вы нашли недоработку. 
-/upg - в случае,если вы хотите что-нибудь предложить.
-/stat - в случае,если вы хотите отправить отчет по рекламе.
-/meet - в случае,если вы хотите назначить встречу.
-            `)
+            return bot.on('callback_query', async callback_query => {
+                const action = callback_query.data
+
+                if(action === '/bug') return onBugs(chatId)
+                if(action === '/upg') return onUpgrade(chatId)
+                if(action === '/stat') return onStat(chatId)
+                if(action === '/meet') return onMeet(chatId)
+            })
         }
 
         if(text === '/bug'){

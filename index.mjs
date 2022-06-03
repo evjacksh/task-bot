@@ -6,22 +6,19 @@ const token = '5313280359:AAGlHJST4liN8RI2si_yEPFaCl8pTm8tmx0'
 const bot = new TelegramApi(token, {polling: true})
 
 
-
-
 // Server
     const requestListener = (req,res) => {
-        let data = ''
-        req.on('data', chunk => {
-            data += chunk
 
-        })
-        // const {chat_id, username, meet_username, message} = req.body
-        req.on('end', () => {
-            console.log(data);
-            res.writeHead(200)
-            res.end('Connection OK')
-        })
- 
+        if(req.url === '/meet'){
+            req.on('data', chunk => {
+                const serverData = JSON.parse(chunk)
+                const {chat_id, meet_username} = serverData
+                const message = `Ваша встреча с ${meet_username} начнется через 15 минут!`
+                bot.sendMessage(chat_id, message)
+                res.writeHead(200)
+                res.end('Connection OK, status: 200')
+            })
+        }
     }
     const server = http.createServer(requestListener)
     server.listen(8080)
@@ -35,8 +32,8 @@ const bot = new TelegramApi(token, {polling: true})
         const statRegularExp = /=((([А-Я]{1,10}[1,9]{1,3})((\*)[0-9]{1,10}){4})|(([А-Я]{1,10})(\*)[0-9]{1,10}))$/
 
     // Meet RegularExp
-        const meetRegularExp = /(@(([A-Z]|[a-z])+) (([0-9]{1,2}\.){2})([0-9]{4}) ([0-9]{1,2}:[0-9]{1,2}$))/
-        const meetUsernameRegularExp = /(@(([A-Z]|[a-z])+))/
+        const meetRegularExp = /((@((([A-z])|[0-9])+)) (([0-9]{1,2}\.){2})([0-9]{4}) ([0-9]{1,2}:[0-9]{1,2}$))/
+        const meetUsernameRegularExp = /(@((([A-z])|[0-9])+))/
         const meetDateRegularExp = /(([0-9]{1,2}\.){2})([0-9]{4})/
         const meetTimeRegularExp = /([0-9]{1,2}:[0-9]{1,2})$/
 
@@ -56,6 +53,17 @@ const POST_FETCH_REQUEST = async (form) => {
     axios.post(URL, form, options)
         .then(res => console.log(res.data))
         .catch(err => console.log(err))
+}
+
+const GET_FETCH_REQUEST = async (chat_id) => {
+    const URL = `https://panel.garantsc.ru/users:${chat_id}`
+
+    let data
+    axios.post(URL, form, options)
+        .then(res => res.json())
+        .then(res => data = [...res])
+        .catch(err => console.log(err))
+    return data
 }
 
 const formatCheck = (text,Regexp) => text.match(Regexp) ? text.match(Regexp)[0] : null
@@ -139,37 +147,159 @@ const onStat = async (chatId) => {
 }
 
 const onMeet = async (chatId) => {
-    const meetMessage = `Чтобы назначить встречу,укажите username сотрудника и дату в следующем формате:
+    // const {last_meet, most_frequently_meet} = GET_FETCH_REQUEST()
+    const meetMessage = `Чтобы назначить встречу следуйте в инструкции и нажимайте на соотвествующие кнопки
     
-    @username 02.06.2022 15:30
-        `
-    await bot.sendMessage(chatId, meetMessage)
+Для начала выберите,с кем вы хотите назначить встречу?
+`
 
-    bot.once('message', async msg => {
-        const {first_name,username} = msg.from
-        let {text} = msg
-        const meet_username = formatCheck(text,meetUsernameRegularExp)
-        const meetTime = formatCheck(text,meetTimeRegularExp)
-        const meetDate = formatCheck(text,meetDateRegularExp)
-        const meet_date = new Date(meetDate + ' ' + meetTime).getTime()
+    const user_meet_options = {
+        reply_markup: JSON.stringify({
+            inline_keyboard: [
+                [
+                    {text: 'Сережа', callback_data: '@olimp360'},
+                    {text: 'Женя', callback_data: '@evjacksh'}, 
+                    {text: 'Рома', callback_data: '@Memoriz1337'}, 
+                    {text: 'Коля', callback_data: '@nikemat'}, 
+                    {text: 'Тимур', callback_data: '@Ttimbaland'}, 
+                ],
 
-        if( formatCheck(text,meetRegularExp) !== null & meetTime !== null & meetDate !== null & meet_username !== null){
-            const form = new FormData()
-            form.append('command_type', 'meet')
-            form.append('chat_id', chatId)
-            form.append('user_text', text)
-            form.append('username', username)
-            form.append('first_name', first_name)
-            form.append('meet_date', meet_date)
-            form.append('meet_username', meet_username)
+            ]
+        })
+    }
+
+    const meet_date_options = {
+        reply_markup: JSON.stringify({
+            inline_keyboard: [
+                [
+                    {text: '01', callback_data: '01'},
+                    {text: '02', callback_data: '02'}, 
+                    {text: '03', callback_data: '03'}, 
+                    {text: '04', callback_data: '04'}, 
+                    {text: '05', callback_data: '05'}, 
+                    {text: '06', callback_data: '06'}, 
+                    {text: '07', callback_data: '07'}, 
+                ],
+                [
+                    {text: '08', callback_data: '08'},
+                    {text: '09', callback_data: '09'}, 
+                    {text: '10', callback_data: '10'}, 
+                    {text: '11', callback_data: '11'}, 
+                    {text: '12', callback_data: '12'}, 
+                    {text: '13', callback_data: '13'}, 
+                    {text: '14', callback_data: '14'}, 
+                ],
+                [
+                    {text: '15', callback_data: '16'},
+                    {text: '17', callback_data: '17'}, 
+                    {text: '18', callback_data: '18'}, 
+                    {text: '19', callback_data: '19'}, 
+                    {text: '20', callback_data: '20'}, 
+                    {text: '21', callback_data: '21'}, 
+                    {text: '22', callback_data: '22'}, 
+                ],
+                [
+                    {text: '23', callback_data: '23'},
+                    {text: '24', callback_data: '24'}, 
+                    {text: '25', callback_data: '25'}, 
+                    {text: '26', callback_data: '26'}, 
+                    {text: '27', callback_data: '27'}, 
+                    {text: '28', callback_data: '28'}, 
+                    {text: '29', callback_data: '29'}, 
+                ],
+                [
+                    {text: '30', callback_data: '30'},
+                    {text: '31', callback_data: '30'}, 
+                ],
+
+            ]
+        })
+    }
+
+    const meet_time_options = {
+        reply_markup: JSON.stringify({
+            inline_keyboard: [
+                [
+                    {text: '09:00', callback_data: '09:00'},
+                    {text: '10:00', callback_data: '10:00'}, 
+                    {text: '11:00', callback_data: '11:00'}, 
+                    {text: '12:00', callback_data: '12:00'}, 
+                    {text: '13:00', callback_data: '13:00'}, 
+                    {text: '14:00', callback_data: '14:00'}, 
+                    {text: '15:00', callback_data: '15:00'}, 
+                ],
+                [
+                    {text: '16:00', callback_data: '16:00'},
+                    {text: '17:00', callback_data: '17:00'}, 
+                    {text: '18:00', callback_data: '18:00'}, 
+                    {text: '19:00', callback_data: '19:00'}, 
+                ],
+            ]
+        })
+    }
+
+    await bot.sendMessage(chatId, meetMessage, user_meet_options)
+
+    bot.once('callback_query', async callback_query => {
+        const action = callback_query.data
+        const {message_id} = callback_query.message
+        const {username,first_name} = callback_query.from
+        let meet_username = action
+        await bot.editMessageText('Теперь выберите дату', Object.assign(meet_date_options,{message_id,chat_id:chatId}))
+
+        bot.once('callback_query',async callback_query => {
+            const action = callback_query.data
+            let meet_date = action
+            await bot.editMessageText('Теперь выберите время', Object.assign(meet_time_options,{message_id,chat_id:chatId}))
+
+            return bot.once('callback_query',async callback_query => {
+                const action = callback_query.data
+                let meet_time = action
+
+                if(meet_username !== null & meet_date !== null & meet_time !== null ){
+                    const now_date = new Date()
+                    const meetDate = new Date(`${meet_date}.${now_date.getMonth() + 1}.${now_date.getFullYear()} ${meet_time}`).getTime() / 1000
+                    const form = new FormData()
+                    form.append('command_type', 'meet')
+                    form.append('chat_id', chatId)
+                    form.append('username', username)
+                    form.append('first_name', first_name)
+                    form.append('meet_date', meetDate)
+                    form.append('meet_username', meet_username)
+        
+                    await POST_FETCH_REQUEST(form)
+                    return bot.editMessageText(`Встреча с ${meet_username} назначена ${meet_date} числа в ${meet_time} :)`,{message_id,chat_id:chatId})
+                } else{
+                    return bot.editMessageText('Встреча не назначена. Убедитесь,что сделали все правильно',{message_id,chat_id:chatId})
+                }
+            })
+        })
+    })
+
+    // bot.once('message', async msg => {
+    //     const {first_name,username} = msg.from
+    //     let {text} = msg
+    //     const meet_username = formatCheck(text,meetUsernameRegularExp)
+    //     const meetTime = formatCheck(text,meetTimeRegularExp)
+    //     const meetDate = formatCheck(text,meetDateRegularExp)
+    //     const meet_date = Math.round(new Date(meetDate + ' ' + meetTime).getTime() / 1000)
+
+    //     if( formatCheck(text,meetRegularExp) !== null & meetTime !== null & meetDate !== null & meet_username !== null){
+    //         const form = new FormData()
+    //         form.append('command_type', 'meet')
+    //         form.append('chat_id', chatId)
+    //         form.append('username', username)
+    //         form.append('first_name', first_name)
+    //         form.append('meet_date', meet_date)
+    //         form.append('meet_username', meet_username)
 
             
-            // await POST_FETCH_REQUEST(form)
-            return bot.sendMessage(chatId, 'Встреча назначена :)')
-        } else{
-            return bot.sendMessage(chatId, 'Встреча не назначена. Убедитесь,что данные введены в верном формате')
-        }
-    })
+    //         await POST_FETCH_REQUEST(form)
+    //         return bot.sendMessage(chatId, 'Встреча назначена :)')
+    //     } else{
+    //         return bot.sendMessage(chatId, 'Встреча не назначена. Убедитесь,что данные введены в верном формате')
+    //     }
+    // })
 }
 
 const start = () => {
@@ -177,12 +307,12 @@ const start = () => {
     bot.setMyCommands([
         {command: '/start', description: 'Запустить бота'},
         {command: '/bug', description: 'Сообщить об обнаруженной недоработке'},
-        {command: '/upd', description: 'Предложить идею по дополнению функционала'},
+        {command: '/upg', description: 'Предложить идею по дополнению функционала'},
         {command: '/stat', description: 'Написать отчет'},
         {command: '/meet', description: 'Назначить встречу'},
     ])
 
-    const options = {
+    const startOptions = {
         reply_markup: JSON.stringify({
             inline_keyboard: [
                 [{text: 'Сообщить о баге', callback_data: '/bug'}],
@@ -196,11 +326,18 @@ const start = () => {
     bot.on('message', async msg => {
         const chatId = msg.chat.id
         const {username} = msg.chat
-        const {text} = msg
+        const {text,message_id} = msg
 
 
         console.log(msg)
         if(text === '/start'){
+
+            // bot.sendMessage(chatId, 'Если вы покажите свой номер телефона боту,мы сможем подсказать вам статус вашего заказа', {
+            //     reply_markup: {
+            //         one_time_keyboard: true,
+            //         keyboard: [[{text: 'Показать боту свой номер', request_contact: true, one_time_keyboard: true}]]
+            //     }
+            // })
 
             const startMessage = `В этого бота можно отправлять замеченные вами недоработки, предложения по улучшению функционала той платформы, с которой вы работаете, отправлять отчеты по эффективности рекламе, назначать встречи.
             
@@ -217,8 +354,8 @@ const start = () => {
             form.append('chat_id', chatId)
             form.append('username', username)
     
-            // await POST_FETCH_REQUEST(form)
-            await bot.sendMessage(chatId, startMessage ,options)
+            await POST_FETCH_REQUEST(form)
+            await bot.sendMessage(chatId, startMessage ,startOptions)
 
             return bot.on('callback_query', async callback_query => {
                 const action = callback_query.data

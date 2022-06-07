@@ -8,7 +8,7 @@ const bot = new TelegramApi(token, {polling: true})
 
 // Server
 const requestListener = (req,res) => {
-    if(req.url === '/meet'){
+    if(req.url === 'https://t.multibrand.msk.ru/meet'){
         req.on('data', chunk => {
             const serverData = JSON.parse(chunk)
             const {chat_id, meet_username} = serverData

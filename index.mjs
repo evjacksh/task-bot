@@ -2,27 +2,38 @@ import TelegramApi from 'node-telegram-bot-api'
 import axios from 'axios'
 import FormData from 'form-data'
 import http from 'http'
+import { log } from 'console'
 const token = '5313280359:AAGlHJST4liN8RI2si_yEPFaCl8pTm8tmx0'
 const bot = new TelegramApi(token, {polling: true})
 
 
 // Server
-    const requestListener = (req,res) => {
+    try {
+        const requestListener = (req,res) => {
 
-        if(req.url === '/meet'){
-            req.on('data', chunk => {
-                const serverData = JSON.parse(chunk)
-                const {chat_id, meet_username} = serverData
-                const message = `Ваша встреча с ${meet_username} начнется через 15 минут!`
-                bot.sendMessage(chat_id, message)
+           try {
+            if(req.url === '/meet'){
+                req.on('data', chunk => {
+                    const serverData = JSON.parse(chunk)
+                    const {chat_id, meet_username} = serverData
+                    const message = `Ваша встреча с ${meet_username} начнется через 15 минут!`
+                    bot.sendMessage(chat_id, message)
+                    res.writeHead(200)
+                    res.end('Connection OK, status: 200')
+                })
+            } else{
                 res.writeHead(200)
-                res.end('Connection OK, status: 200')
-            })
+                res.end('Connection OK, but this link have nothing to return')
+            } 
+           } catch (error) {
+               console.log(error);
+           }
         }
+        const server = http.createServer(requestListener)
+        server.listen(22)
+    } catch (error) {
+        console.log(error);
     }
-    const server = http.createServer(requestListener)
-    server.listen(22)
-
 
 
 

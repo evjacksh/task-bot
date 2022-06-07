@@ -6,35 +6,26 @@ const token = '5313280359:AAGlHJST4liN8RI2si_yEPFaCl8pTm8tmx0'
 const bot = new TelegramApi(token, {polling: true})
 
 
-// // Server
-//     try {
-//         const requestListener = (req,res) => {
-
-//            try {
-//             if(req.url === '/meet'){
-//                 req.on('data', chunk => {
-//                     const serverData = JSON.parse(chunk)
-//                     const {chat_id, meet_username} = serverData
-//                     const message = `Ваша встреча с ${meet_username} начнется через 15 минут!`
-//                     bot.sendMessage(chat_id, message)
-//                     res.writeHead(200)
-//                     res.end('Connection OK, status: 200')
-//                 })
-//             } else{
-//                 res.writeHead(200)
-//                 res.end('Connection OK, but this link have nothing to return')
-//             } 
-//            } catch (error) {
-//                console.log(error);
-//            }
-//         }
-//         const server = http.createServer(requestListener)
-//         server.listen(22)
-//     } catch (error) {
-//         console.log(error);
-//     }
-
-
+// Server
+const requestListener = (req,res) => {
+    if(req.url === '/meet'){
+        req.on('data', chunk => {
+            const serverData = JSON.parse(chunk)
+            const {chat_id, meet_username} = serverData
+            const message = `Ваша встреча с ${meet_username} начнется через 15 минут!`
+            bot.sendMessage(chat_id, message)
+            res.writeHead(200)
+            res.end('Connection OK, status: 200')
+        })
+    } else{
+        req.on('data', () => {
+            res.writeHead(200)
+            res.end('Connection OK, but this link have nothing to return')
+        })
+    }
+}
+const server = http.createServer(requestListener)
+server.listen(8080)
 
 
 // RegularExp
@@ -65,16 +56,17 @@ const POST_FETCH_REQUEST = async (form) => {
         .catch(err => console.log(err))
 }
 
-const GET_FETCH_REQUEST = async (chat_id) => {
-    const URL = `http://t.multibrand.msk.ru/tg_bot.php?stat`
+// const GET_FETCH_REQUEST = async (chat_id) => {
+//     const URL = `https://t.multibrand.msk.ru/tg_bot.php?stat`
 
-    let data
-    axios.post(URL)
-        .then(res => res.json())
-        .then(json => console.log(json))
-        .catch(err => console.log(err))
-    return data
-}
+//     let data
+//     axios.get(URL)
+//         .then(res => res.json())
+//         .then(json => console.log(json))
+//         .catch(err => console.log(err))
+//     return data
+// }
+
 
 
 const formatCheck = (text,Regexp) => text.match(Regexp) ? text.match(Regexp)[0] : null

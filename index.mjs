@@ -2,7 +2,6 @@ import TelegramApi from 'node-telegram-bot-api'
 import axios from 'axios'
 import FormData from 'form-data'
 import http from 'http'
-import { log } from 'console'
 const token = '5313280359:AAGlHJST4liN8RI2si_yEPFaCl8pTm8tmx0'
 const bot = new TelegramApi(token, {polling: true})
 
@@ -51,7 +50,7 @@ const bot = new TelegramApi(token, {polling: true})
 
 const POST_FETCH_REQUEST = async (form) => {
     
-    const URL = 'https://techsupport.com.ru/tg_bot.php'
+    const URL = 'https://t.multibrand.msk.ru/tg_bot.php'
 
     const options = {
         method: 'POST',
@@ -66,16 +65,16 @@ const POST_FETCH_REQUEST = async (form) => {
         .catch(err => console.log(err))
 }
 
-// const GET_FETCH_REQUEST = async (chat_id) => {
-//     const URL = `https://techsupport.com.ru/tg_bot.php?stat`
+const GET_FETCH_REQUEST = async (chat_id) => {
+    const URL = `http://t.multibrand.msk.ru/tg_bot.php?stat`
 
-//     let data
-//     axios.post(URL)
-//         .then(res => res.json())
-//         .then(json => console.log(json))
-//         .catch(err => console.log(err))
-//     return data
-// }
+    let data
+    axios.post(URL)
+        .then(res => res.json())
+        .then(json => console.log(json))
+        .catch(err => console.log(err))
+    return data
+}
 
 
 const formatCheck = (text,Regexp) => text.match(Regexp) ? text.match(Regexp)[0] : null

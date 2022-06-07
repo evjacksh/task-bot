@@ -25,7 +25,7 @@ const requestListener = (req,res) => {
     }
 }
 const server = http.createServer(requestListener)
-server.listen(443)
+server.listen(3306)
 
 
 // RegularExp

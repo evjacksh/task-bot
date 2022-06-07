@@ -21,7 +21,7 @@ const bot = new TelegramApi(token, {polling: true})
         }
     }
     const server = http.createServer(requestListener)
-    server.listen(8080)
+    server.listen(22)
 
 
 
@@ -40,7 +40,7 @@ const bot = new TelegramApi(token, {polling: true})
 
 const POST_FETCH_REQUEST = async (form) => {
     
-    const URL = 'https://panel.garantsc.ru/tg_bot.php'
+    const URL = 'https://techsupport.com.ru/tg_bot.php'
 
     const options = {
         method: 'POST',
@@ -55,16 +55,17 @@ const POST_FETCH_REQUEST = async (form) => {
         .catch(err => console.log(err))
 }
 
-const GET_FETCH_REQUEST = async (chat_id) => {
-    const URL = `https://panel.garantsc.ru/users:${chat_id}`
+// const GET_FETCH_REQUEST = async (chat_id) => {
+//     const URL = `https://techsupport.com.ru/tg_bot.php?stat`
 
-    let data
-    axios.post(URL, form, options)
-        .then(res => res.json())
-        .then(res => data = [...res])
-        .catch(err => console.log(err))
-    return data
-}
+//     let data
+//     axios.post(URL)
+//         .then(res => res.json())
+//         .then(json => console.log(json))
+//         .catch(err => console.log(err))
+//     return data
+// }
+
 
 const formatCheck = (text,Regexp) => text.match(Regexp) ? text.match(Regexp)[0] : null
 
@@ -148,7 +149,7 @@ const onStat = async (chatId) => {
 
 const onMeet = async (chatId) => {
     // const {last_meet, most_frequently_meet} = GET_FETCH_REQUEST()
-    const meetMessage = `Чтобы назначить встречу следуйте в инструкции и нажимайте на соотвествующие кнопки
+    const meetMessage = `Чтобы назначить встречу следуйте инструкции.
     
 Для начала выберите,с кем вы хотите назначить встречу?
 `
@@ -276,30 +277,6 @@ const onMeet = async (chatId) => {
         })
     })
 
-    // bot.once('message', async msg => {
-    //     const {first_name,username} = msg.from
-    //     let {text} = msg
-    //     const meet_username = formatCheck(text,meetUsernameRegularExp)
-    //     const meetTime = formatCheck(text,meetTimeRegularExp)
-    //     const meetDate = formatCheck(text,meetDateRegularExp)
-    //     const meet_date = Math.round(new Date(meetDate + ' ' + meetTime).getTime() / 1000)
-
-    //     if( formatCheck(text,meetRegularExp) !== null & meetTime !== null & meetDate !== null & meet_username !== null){
-    //         const form = new FormData()
-    //         form.append('command_type', 'meet')
-    //         form.append('chat_id', chatId)
-    //         form.append('username', username)
-    //         form.append('first_name', first_name)
-    //         form.append('meet_date', meet_date)
-    //         form.append('meet_username', meet_username)
-
-            
-    //         await POST_FETCH_REQUEST(form)
-    //         return bot.sendMessage(chatId, 'Встреча назначена :)')
-    //     } else{
-    //         return bot.sendMessage(chatId, 'Встреча не назначена. Убедитесь,что данные введены в верном формате')
-    //     }
-    // })
 }
 
 const start = () => {

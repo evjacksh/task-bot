@@ -385,7 +385,7 @@ const onAsk = async (chatId) => {
         bot.once('callback_query',async callback_query => {
             const action = callback_query.data
             let meet_date = action
-            await bot.editMessageText('Теперь выберите время', Object.assign(meet_time_options,{message_id,chat_id:chatId}))
+            await bot.editMessageText('Теперь выберите время, во сколько хотите уйти?', Object.assign(meet_time_options,{message_id,chat_id:chatId}))
 
             return bot.once('callback_query',async callback_query => {
                 const action = callback_query.data

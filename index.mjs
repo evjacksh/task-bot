@@ -285,7 +285,7 @@ const onAsk = async (chatId) => {
     // const {last_meet, most_frequently_meet} = GET_FETCH_REQUEST()
     const meetMessage = `Чтобы отпроситься пораньше следуйте инструкции.
     
-Для начала выберите,у кого вы хотите отпроситься?
+Для начала выберите, у кого вы хотите отпроситься?
 `
 
     const user_meet_options = {
@@ -359,16 +359,18 @@ const onAsk = async (chatId) => {
                     {text: '10:00', callback_data: '10:00'}, 
                     {text: '11:00', callback_data: '11:00'}, 
                     {text: '12:00', callback_data: '12:00'}, 
+                ],
+                [
                     {text: '13:00', callback_data: '13:00'}, 
                     {text: '14:00', callback_data: '14:00'}, 
                     {text: '15:00', callback_data: '15:00'}, 
+                    {text: '16:00', callback_data: '16:00'},
                 ],
                 [
-                    {text: '16:00', callback_data: '16:00'},
                     {text: '17:00', callback_data: '17:00'}, 
                     {text: '18:00', callback_data: '18:00'}, 
                     {text: '19:00', callback_data: '19:00'}, 
-                ],
+                ]
             ]
         })
     }
@@ -403,7 +405,7 @@ const onAsk = async (chatId) => {
                     form.append('meet_username', meet_username)
         
                     await POST_FETCH_REQUEST(form)
-                    return bot.editMessageText(`Вы отпросились пораньше у ${meet_username}. Вы можете уйти ${meet_date} числа в ${meet_time} :)`,{message_id,chat_id:chatId})
+                    return bot.editMessageText(`Вы отпросились пораньше у ${meet_username} :)`,{message_id,chat_id:chatId})
                 } else{
                     return bot.editMessageText('Отпроситься не удалось. Убедитесь,что сделали все правильно',{message_id,chat_id:chatId})
                 }

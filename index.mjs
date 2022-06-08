@@ -405,7 +405,7 @@ const onAsk = async (chatId) => {
                     form.append('meet_username', meet_username)
         
                     await POST_FETCH_REQUEST(form)
-                    return bot.editMessageText(`Вы отпросились пораньше у ${meet_username} :)`,{message_id,chat_id:chatId})
+                    return bot.editMessageText(`Вы отпросились пораньше у ${meet_username} ${meet_date} числа в ${meet_time}  :)`,{message_id,chat_id:chatId})
                 } else{
                     return bot.editMessageText('Отпроситься не удалось. Убедитесь,что сделали все правильно',{message_id,chat_id:chatId})
                 }

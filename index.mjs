@@ -261,7 +261,7 @@ const onMeet = async (chatId) => {
 
                 if(meet_username !== null & meet_date !== null & meet_time !== null ){
                     const now_date = new Date()
-                    const meetDate = new Date(`${meet_date}.${now_date.getMonth() + 1}.${now_date.getFullYear()} ${meet_time}`).getTime() / 1000
+                    const meetDate = new Date(`${now_date.getMonth() + 1}.${meet_date}.${now_date.getFullYear()} ${meet_time}`).getTime() / 1000
                     const form = new FormData()
                     form.append('command_type', 'meet')
                     form.append('chat_id', chatId)
@@ -395,7 +395,7 @@ const onAsk = async (chatId) => {
 
                 if(meet_username !== null & meet_date !== null & meet_time !== null ){
                     const now_date = new Date()
-                    const meetDate = new Date(`${meet_date}.${now_date.getMonth() + 1}.${now_date.getFullYear()} ${meet_time}`).getTime() / 1000
+                    const meetDate = new Date(`${now_date.getMonth() + 1}.${meet_date}.${now_date.getFullYear()} ${meet_time}`).getTime() / 1000
                     const form = new FormData()
                     form.append('command_type', 'meet')
                     form.append('chat_id', chatId)
@@ -403,6 +403,7 @@ const onAsk = async (chatId) => {
                     form.append('first_name', first_name)
                     form.append('meet_date', meetDate)
                     form.append('meet_username', meet_username)
+
         
                     await POST_FETCH_REQUEST(form)
                     return bot.editMessageText(`Вы отпросились пораньше у ${meet_username} ${meet_date} числа в ${meet_time}  :)`,{message_id,chat_id:chatId})

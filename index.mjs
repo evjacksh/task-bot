@@ -432,6 +432,7 @@ const start = () => {
                 [{text: 'Сделать предложение', callback_data: '/upg'}],
                 [{text: 'Отправить отчет', callback_data: '/stat'}],
                 [{text: 'Назначить встречу', callback_data: '/meet'}],
+                [{text: 'Отпроситься', callback_data: '/ask'}],
             ]
         })
     }
@@ -477,6 +478,7 @@ const start = () => {
                 if(action === '/upg') return onUpgrade(chatId)
                 if(action === '/stat') return onStat(chatId)
                 if(action === '/meet') return onMeet(chatId)
+                if(action === '/ask') return onAsk(chatId)
             })
         }
 
